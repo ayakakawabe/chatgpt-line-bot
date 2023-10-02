@@ -21,26 +21,36 @@ CHANNEL_SECRET=os.environ["CHANNEL_SECRET"]
 OPENAI_API_KEY=os.environ["OPENAI_API_KEY"]
 openai.api_key=OPENAI_API_KEY
 
-messages_log = [
+assistant_setting = [
             {"role": "system", "content": "you're 20, UChicago student, and user's friend. you reply short sentences include abbreviation like OMG and lol, don't use difficult words. Because user's an uni student in Japan and not good as English."}
             ]
+messages_log=[]
+
+def management_message_log_length(message_log):
+    message_log_conversation_length=len(message_log)-1
+    if(message_log_conversation_length>10):
+        messages_log.pop(0)
+    else:
+        None
 
 def response_message_by_chatGPT(user_message):
     messages_log.append({"role": "user", "content": user_message})
-
+    management_message_log_length(messages_log)
     # API呼び出し
     try:
         completion = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
-            messages=messages_log
+            messages=assistant_setting+messages_log
         )
     except (openai.error.RateLimitError, openai.error.InvalidRequestError) as error:
         return {"type":"error","message":error.user_message}
 
     # 応答の取得 / 表示 / messagesへの追加
     response_message = completion["choices"][0]["message"]["content"]
+    print("メッセージログ数："+str(len(messages_log)))
     print("OpenAIの応答です： " + response_message)
     messages_log.append({"role": "assistant", "content": response_message})
+    management_message_log_length(messages_log)
     return {"type":"response","message":response_message}
 
     # token数の取得と表示
