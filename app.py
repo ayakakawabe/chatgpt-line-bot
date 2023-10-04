@@ -47,11 +47,11 @@ def response_message_by_chatGPT(user_message):
 
     # 応答の取得 / 表示 / messagesへの追加
     response_message = completion["choices"][0]["message"]["content"]
-    print("メッセージログ数："+str(len(messages_log)))
     print("OpenAIの応答です： " + response_message)
     messages_log.append({"role": "assistant", "content": response_message})
     management_message_log_length(messages_log)
-    return {"type":"response","message":response_message}
+    token=completion["usage"]["completion_tokens"]
+    return {"type":"response","message":response_message,"token":token}
 
     # token数の取得と表示
     #tokens = completion["usage"]["total_tokens"]
@@ -87,10 +87,22 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_message(event):
     response_data=response_message_by_chatGPT(event.message.text)
-    response_message=response_data["message"]
-    line_bot_api.reply_message(
-        event.reply_token,
-        TextSendMessage(text=response_message))
+    if(response_data["type"]=="response"):
+        if(response_data["token"]>20):
+            message_split=response_data["message"].split("!")
+            for i in range(len(message_split)-1):
+                    message_split[i]+="!"
+            line_bot_api.reply_message(
+                event.reply_token,
+                [TextSendMessage(text=message) for message in message_split])
+        else:    
+            line_bot_api.reply_message(
+                event.reply_token,
+                TextSendMessage(text=response_data["message"]))
+    else:
+        line_bot_api.reply_message(
+            event.reply_token,
+            [TextMessage("Sorry, I can't reply now."),TextSendMessage("error:"+response_data["message"])])
 
 
 if __name__ == "__main__":
