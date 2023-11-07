@@ -10,6 +10,8 @@ ngrokでwebhookを設定し、PythonにLINEユーザの送信内容を送る。
 
 ローカル環境での実行方法
 
+詳しくは[こちら](https://qiita.com/ayakaintheclouds/items/6515a329d7cce94f8358)
+
 ### LINE Developersの設定
 [Messaging API](https://developers.line.biz/ja/docs/messaging-api/getting-started/) でチャネルを作成し、チャネルアクセストークンとチャネルシークレットを取得する
 
@@ -20,6 +22,16 @@ $ pip install flask
 $ pip install line-bot-sdk
 $ pip install python-dotenv
 ```
+
+### フォルダ構成
+
+```
+.
+├── app.py
+└── .env
+```
+
+[app.py](https://github.com/ayakakawabe/chatgpt-line-bot/blob/main/app.py)をダウンロードして、ルートディレクトリに配置する
 
 ### .envの作成
 
